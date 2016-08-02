@@ -337,3 +337,8 @@ summary(lm(pe[,7] ~ pe [,-7]))
 #even worse than before.
 #   The gap is worse at the PhD level than the Master's, likely because
 #of the generally higher wages for the latter.
+
+
+###############
+#1.12 Classiffcation Techniques
+#
