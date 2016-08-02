@@ -256,7 +256,7 @@ pe <- as.matrix(pe)
 #out model is:
 #mean wageinc = B0 +B1 age + B2 age^2 + B3 wkswrkd + B4 ms + B5 phd + B6 fem
 #we find the following 
-summary(lm(pe[,7] ~ pe [,−7]))
+summary(lm(pe[,7] ~ pe [,-7]))
 
 #Call:
 #lm(formula = pe[, 7] ~ pe[, -7])
@@ -342,3 +342,59 @@ summary(lm(pe[,7] ~ pe [,-7]))
 ###############
 #1.12 Classiffcation Techniques
 #
+#Recall that the regression function is the conditional mean:
+# mu(t) = E(Y | X=t)
+#In the clasification case, Y is an indicator variable, we know its mean
+#is the probability that Y = 1. In other words,
+# mu(t) = P(Y=1 | x=t)
+
+#An intuitive strategy  would be to guess that Y = 1 if the conditional
+#probability of 1 is greater than 0.5, and guess 0 otherwise.
+
+#1.12.2 Example: Bike-Sharing Data
+#Let’s take as our example the situation in which ridership is above 3,500
+#bikes, which we will call HighUsage:
+shar$highuse <- as.integer (shar$reg > 3500)
+
+#the most common model for conditional probability is logistic regression:
+#probability of High usae = l(= B0 + B1 temp + B2 temp^2 + B3 workingday + B4 clearday)
+
+#R provides the glm() (“generalized linear model”) function for several nonlinear
+#model families, including the logistic, which is designated 
+#via family = binomial:
+glmout <- glm(highuse ~ temp+temp2+workingday+clearday, data=shar, family=binomial)
+glmout
+
+#Call:  glm(formula = highuse ~ temp + temp2 + workingday + clearday, 
+#family = binomial, data = shar)
+
+#Coefficients:
+#  (Intercept)         temp        temp2   workingday     clearday  
+#  -18.263           45.909      -36.231        3.570        1.961  
+
+#Degrees of Freedom: 364 Total (i.e. Null);  360 Residual
+#Null Deviance:	    446.8 
+#Residual Deviance: 245.8 	AIC: 255.8
+
+tmp <- coef(glmout)%*%c(1,0.525,0.525^2,0,1)
+1/(1+exp(-tmp ))
+
+#So, our parametric model gives an almost identical result here to the one
+#arising from k-NN, about a 10% probability of HighUsage.
+
+#1.14 Code Complements
+gender <- c("m", "f", "m", "f", "m", "f")
+height <- c(66,62,66,58,67,53)
+x <- data.frame(gender, height)
+x
+#Now let’s split by gender:
+xs <- split(x,x$gender)
+xs
+#find the mean heights in each gender
+mean(xs$f$height)
+mean(xs$m$height)
+
+#But with tapply(), we can combine the two operations:
+tapply(x$height, x$gender, mean)
+#let's say we wanted to find mean and standard deviation
+tapply(x$height, x$gender, function(w) c(mean(w), sd(w)))
